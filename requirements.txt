@@ -2,5 +2,5 @@ opencv-python
 numpy
 imutils
 scipy
-dlib
 flask
+dlib
