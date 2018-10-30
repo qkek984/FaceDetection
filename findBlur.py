@@ -2,7 +2,7 @@
 from imutils import paths
 import argparse
 import cv2
-import dirInput
+import multiFileInput
 import re
 
 class Blur:
@@ -16,6 +16,7 @@ class Blur:
     def findBlur(self):
         args = vars(self.ap.parse_args())
         nextImageList=[]
+        resultList=[]
         for i, image in enumerate(args["imageList"]):
             # load the image, convert it to grayscale, and compute the
             # focus measure of the image using the Variance of Laplacian
@@ -38,28 +39,28 @@ class Blur:
             # then the image should be considered "blurry"
             if fm < args["threshold"]:
                 text = "Blurry"
-                cv2.putText(image, "{}: {:.2f}".format(text, fm), (10, 200),
-                            cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
+                #cv2.putText(image, "{}: {:.2f}".format(text, fm), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
                 cv2.imwrite('result/blur/' + fileName + '.jpg', image)
-                print(fileName+"\tP")
+                #print(fileName+"\tP")
+                resultList.append([fileName,"Blur"])
             else:
-                #cv2.putText(image, "{}: {:.2f}".format(text, fm), (10, 200),cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
-                cv2.putText(image, "{}: {:.2f}".format(text, fm), (10, 200),
-                            cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
+                #cv2.putText(image, "{}: {:.2f}".format(text, fm), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 0, 0), 3)
                 #cv2.imwrite('result/' + str(i) + '.jpg', image)
                 nextImageList.append([image,fileName])
-                print(fileName + "\tN")
+                #resultList.append([fileName, Blur])
+                #print(fileName + "\tN")
 
-        return nextImageList
+        return nextImageList,resultList
 
 # construct the argument parse and parse the arguments
 
 if __name__=='__main__':
-    dirIn = dirInput.DirInput("img")
-    imageList = dirIn.dirInput()
+    list = ['C:/Users/Sea/Desktop/jp/samplimg/b0.JPG', 'C:/Users/Sea/Desktop/jp/samplimg/d0.JPG']
+    mFileInput = multiFileInput(list)
+    imageList = mFileInput.filesInput()
 
     blur = Blur(imageList=imageList, threshold=150)
-    imageList = blur.findBlur()
+    imageList,txt1 = blur.findBlur()
 
     for i, image in enumerate(imageList):
         fileName = image[1]
