@@ -1,11 +1,14 @@
 # Simple enough, just import everything from tkinter.
 from tkinter import filedialog, Frame, Menu, Tk, BOTH, StringVar, Label
 
+import cv2
+
 from findBlur import Blur
 from findClosedEyes import ClosedEyes
 from findFace import FindFace
 from multiFileInput import multiFileInput
-
+import requests
+import json
 
 class Window(Frame):
     # Define settings upon initialization. Here you can specify
@@ -39,9 +42,23 @@ class Window(Frame):
         var.set("Wait...")
         files=root.filename = filedialog.askopenfilename(initialdir="/", title="Select file",
                                                    filetypes=(("jpeg files", "*.jpg"), ("jpeg files", "*.jpeg"),("png files", "*.png"),("gif files", "*.gif")), multiple=1)
+        self.imageEnhancement(files)
+
+    def imageEnhancement(self,files):
+        print(files)
         print("------------------------------------------------------------ dir open")
         mFileInput = multiFileInput(files)
         imageList = mFileInput.filesInput()
+
+        for image in imageList:
+            fileName = image[1]
+            image=image[0]
+            self.putImageRequest(image)
+            self.putImageNameRequest(fileName)
+        self.doneRequest()
+
+
+        '''
         print("------------------------------------------------------------ pre processing")
         findFace = FindFace(imageList=imageList)
         imageList = findFace.run()
@@ -53,15 +70,34 @@ class Window(Frame):
         closedEyes = ClosedEyes(imageList=imageList, threshold=0.33)
         txt2 = closedEyes.findClosedEyes()
         print(txt2)
-        self.printResult(txt1+txt2)
+        self.printResult(txt1 + txt2)
+        '''
+    def putImageRequest(self,image):
+        addr = 'http://localhost:5000'
+        image_url = addr + '/image'
 
-    def printResult(self,txt2):
-        resultTxt=""
-        for word in txt2:
-            resultTxt += word[0]+" : "+ word[1]+"\n"
-        print(resultTxt)
-        var.set(resultTxt)
-        pass
+        # prepare headers for http request
+        content_type = 'image/jpeg'
+        headers = {'content-type': content_type}
+
+        # encode image as jpeg
+        _, img_encoded = cv2.imencode('.jpg', image)
+        # send http request with image and receive response
+        response = requests.post(image_url, data=img_encoded.tostring(), headers=headers)
+        #print(response.text)
+    def putImageNameRequest(self,fileName):
+        addr = 'http://localhost:5000'
+        fileName_url = addr + '/fileName'
+        data = {'key': fileName}
+        response = requests.post(fileName_url, json=data)
+        #print(response.text)
+    def doneRequest(self):
+        addr = 'http://localhost:5000'
+        url = addr + '/done'
+        data = {'key': 'value'}
+        response = requests.post(url, json=data)
+        print(response.text)
+        var.set(response.text)
 
     def client_exit(self):
         exit()

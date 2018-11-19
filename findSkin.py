@@ -33,9 +33,6 @@ for contour in contours:
 
 cv2.imwrite('result/skinmask1.jpg',skinMask)# alpha
 
-
-
-
 skinMask2= cv2.bitwise_not(skinMask)
 cv2.imwrite('result/skinmask2.jpg',skinMask2)
 

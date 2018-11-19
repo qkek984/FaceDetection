@@ -55,7 +55,6 @@ class multiFileInput:
         return imageList
 '''
 if __name__=='__main__':
-    list = ['C:/Users/Sea/Desktop/jp/samplimg/b0.JPG', 'C:/Users/Sea/Desktop/jp/samplimg/d0.JPG']
     mFileInput = multiFileInput(list)
     imageList = mFileInput.filesInput()
     for i, image in enumerate(imageList):
